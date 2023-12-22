@@ -1,9 +1,8 @@
 package com.todoapp.controllers;
 
-import com.todoapp.models.Todo;
-import com.todoapp.models.newTodo;
+import com.todoapp.models.dao.Todo;
+import com.todoapp.models.dto.newTodo;
 import com.todoapp.services.TodoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

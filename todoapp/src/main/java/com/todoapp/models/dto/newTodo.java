@@ -1,4 +1,4 @@
-package com.todoapp.models;
+package com.todoapp.models.dto;
 
 public class newTodo {
     private String title;

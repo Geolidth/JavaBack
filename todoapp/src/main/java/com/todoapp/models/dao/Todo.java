@@ -1,15 +1,25 @@
-package com.todoapp.models;
+package com.todoapp.models.dao;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "todos")
 public class Todo {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(length = 50)
     private String title;
     private boolean isDone;
 
-    public Todo(Integer id, String title, boolean isDone) {
+    public Todo(String title, boolean isDone) {
         this.title = title;
         this.isDone = isDone;
-        this.id=id;
+    }
+
+    public Todo() {
+
     }
 
     public Integer getId() {
@@ -24,7 +34,15 @@ public class Todo {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public boolean isDone() {
         return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
     }
 }
