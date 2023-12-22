@@ -23,6 +23,25 @@ public class TodoServiceImpl implements TodoService{
     public List<Todo> getTodos() {
         return todoRepositroy.findAll();
     }
+
+    @Override
+    public List<Todo> getTodos(Optional<Boolean> isDone, Optional<String> q) {
+        if(isDone.isEmpty() && q.isEmpty()) {
+            return getTodos();
+        }else if (isDone.isPresent() && q.isEmpty()){
+            return todoRepositroy.findAllByIsDone(isDone.get());
+        }else if (q.isPresent() && isDone.isEmpty()){
+            return todoRepositroy.findAllByTitleContainsIgnoreCase(q.get().toLowerCase());
+        }else{
+            return todoRepositroy.findAllByIsDoneAndTitleContainsIgnoreCase(isDone.get(), q.get());
+        }
+    }
+
+    @Override
+    public Todo getById(Integer id) throws NoSuchTodoException {
+        return todoRepositroy.findById(id).orElseThrow(NoSuchTodoException::new);
+    }
+
     @Override
     public Todo save(newTodo newTodo) {
         Todo todo= new Todo(newTodo.getTitle(), false);

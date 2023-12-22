@@ -10,7 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/todos")
@@ -21,9 +24,16 @@ public class ToDoController {
         this.todoService=todoService;
     }
     @GetMapping
-    public ResponseEntity<List<Todo>> getTodos(){
-        List<Todo> todos= todoService.getTodos();
+    public ResponseEntity<List<Todo>> getTodos(
+            @RequestParam Optional<Boolean> isDone, @RequestParam Optional<String> q){
+        List<Todo> todos=todoService.getTodos(isDone,q);
         return ResponseEntity.status(HttpStatus.OK).body(todos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Todo> getById(@PathVariable Integer id){
+        Todo todo= todoService.getById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(todo);
     }
 
     @PostMapping
