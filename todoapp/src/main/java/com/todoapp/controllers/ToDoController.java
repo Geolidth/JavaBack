@@ -32,15 +32,20 @@ public class ToDoController {
     return ResponseEntity.status(HttpStatus.CREATED).body(savedTodo);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody UpdateTodo update){
-        
-        try {
+    public ResponseEntity<Todo> update(@PathVariable Integer id, @RequestBody UpdateTodo update){
+
             Todo updatedTodo=todoService.update(id, update);
             return ResponseEntity.status(HttpStatus.OK).body(updatedTodo);
-        } catch (NoSuchTodoException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
-        }
 
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Integer id){
+        todoService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @ExceptionHandler(NoSuchTodoException.class)
+    public ResponseEntity<ErrorMessage> handleNoSuchTodoException(NoSuchTodoException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
     }
 
 

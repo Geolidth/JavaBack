@@ -45,4 +45,13 @@ public class TodoServiceImpl implements TodoService{
             throw new NoSuchTodoException();
         }
     }
+
+    @Override
+    public void delete(Integer id) throws NoSuchTodoException {
+        if(todoRepositroy.existsById(id)) {
+            todoRepositroy.deleteById(id);
+        } else{
+            throw new NoSuchTodoException();
+        }
+    }
 }
