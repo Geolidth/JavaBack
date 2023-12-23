@@ -1,5 +1,7 @@
 package com.todoapp.models.dao;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +18,10 @@ public class Todo {
     @Column(length = 50)
     private String title;
     private boolean isDone;
+    @ManyToOne
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty(value = "ownerId")
+    private TodoUser owner;
 
     public Todo(String title, boolean isDone) {
         this.title = title;

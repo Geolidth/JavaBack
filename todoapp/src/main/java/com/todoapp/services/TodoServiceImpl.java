@@ -1,10 +1,15 @@
 package com.todoapp.services;
 
+import com.todoapp.exceptions.ForbiddenActionException;
 import com.todoapp.exceptions.NoSuchTodoException;
+import com.todoapp.exceptions.NoSuchUserException;
 import com.todoapp.models.dao.Todo;
+import com.todoapp.models.dao.TodoUser;
 import com.todoapp.models.dto.UpdateTodo;
 import com.todoapp.models.dto.newTodo;
 import com.todoapp.repositories.TodoRepositroy;
+import lombok.AllArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,12 +18,13 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class TodoServiceImpl implements TodoService{
 
+    private UserService userService;
+
     private TodoRepositroy todoRepositroy;
-    public TodoServiceImpl(TodoRepositroy todoRepositroy) {
-        this.todoRepositroy=todoRepositroy;
-    }
+
     @Override
     public List<Todo> getTodos() {
         return todoRepositroy.findAll();
@@ -43,15 +49,20 @@ public class TodoServiceImpl implements TodoService{
     }
 
     @Override
-    public Todo save(newTodo newTodo) {
-        Todo todo= new Todo(newTodo.getTitle(), false);
+    public Todo save(Integer userId, newTodo newTodo) throws NoSuchUserException {
+        Todo todo= convertToTodo(userId, newTodo);
         return todoRepositroy.save(todo);
     }
 
     @Override
-    public Todo update(Integer id, UpdateTodo update) throws NoSuchTodoException{
-        Optional<Todo> todoOptional = todoRepositroy.findById(id);
+    public Todo update(Integer userId, Integer todoId, UpdateTodo update)
+            throws NoSuchUserException, NoSuchTodoException, ForbiddenActionException{
+        TodoUser user= userService.getById(userId);
+        Optional<Todo> todoOptional = todoRepositroy.findById(todoId);
         if(todoOptional.isPresent()){
+            if(!todoOptional.get().getOwner().getId().equals(user.getId())){
+                throw new ForbiddenActionException();
+            }
           Todo todo = todoOptional.get();
           if(update.getTitle()!= null&& !update.getTitle().isBlank()) {
               todo.setTitle(update.getTitle());
@@ -66,11 +77,25 @@ public class TodoServiceImpl implements TodoService{
     }
 
     @Override
-    public void delete(Integer id) throws NoSuchTodoException {
-        if(todoRepositroy.existsById(id)) {
-            todoRepositroy.deleteById(id);
+    public void delete(Integer userId, Integer todoId)
+            throws NoSuchUserException, NoSuchTodoException, ForbiddenActionException{
+        TodoUser user = userService.getById(userId);
+        Optional<Todo> todo = todoRepositroy.findById(todoId);
+        if(todo.isPresent()) {
+            if(todo.get().getOwner().getId().equals(userId)){
+            todoRepositroy.deleteById(todoId);
+            }else{
+                throw new ForbiddenActionException();
+            }
         } else{
             throw new NoSuchTodoException();
         }
+    }
+
+    public Todo convertToTodo(Integer userId, newTodo newTodo) throws NoSuchUserException{
+        TodoUser user = userService.getById(userId);
+        Todo todo= new Todo(newTodo.getTitle(), false);
+        todo.setOwner(user);
+        return todo;
     }
 }

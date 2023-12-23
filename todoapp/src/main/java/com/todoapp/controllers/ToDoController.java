@@ -1,8 +1,6 @@
 package com.todoapp.controllers;
 
-import com.todoapp.exceptions.NoSuchTodoException;
 import com.todoapp.models.dao.Todo;
-import com.todoapp.models.dto.ErrorMessage;
 import com.todoapp.models.dto.UpdateTodo;
 import com.todoapp.models.dto.newTodo;
 import com.todoapp.services.TodoService;
@@ -10,8 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -37,26 +34,26 @@ public class ToDoController {
     }
 
     @PostMapping
-    public ResponseEntity<Todo> save(@RequestBody newTodo newTodo){
-    Todo savedTodo=todoService.save(newTodo);
+    public ResponseEntity<Todo> save(@RequestHeader Integer userId,@RequestBody newTodo newTodo){
+    Todo savedTodo=todoService.save(userId,newTodo);
     return ResponseEntity.status(HttpStatus.CREATED).body(savedTodo);
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<Todo> update(@PathVariable Integer id, @RequestBody UpdateTodo update){
+    @PutMapping("/{todoId}")
+    public ResponseEntity<Todo> update(
+            @PathVariable Integer todoId,
+            @RequestHeader Integer userId,
+            @RequestBody UpdateTodo update){
 
-            Todo updatedTodo=todoService.update(id, update);
+            Todo updatedTodo=todoService.update(userId,todoId, update);
             return ResponseEntity.status(HttpStatus.OK).body(updatedTodo);
 
     }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id){
-        todoService.delete(id);
+    @DeleteMapping("/{todoId}")
+    public ResponseEntity<?> delete(@PathVariable Integer todoId, @RequestHeader Integer userId){
+        todoService.delete(userId, todoId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    @ExceptionHandler(NoSuchTodoException.class)
-    public ResponseEntity<ErrorMessage> handleNoSuchTodoException(NoSuchTodoException e){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorMessage(e.getMessage()));
-    }
+
 
 
 }
